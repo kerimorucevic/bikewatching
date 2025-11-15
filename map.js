@@ -40,7 +40,7 @@ map.on('load', async () => {
         type: 'line',
         source: 'boston_route',
         paint: {
-            'line-color': '#32D400',  // A bright green using hex code
+            'line-color': 'red',  // A bright green using hex code
             'line-width': 5,          // Thicker lines
             'line-opacity': 0.6       // Slightly less transparent
           }
