@@ -29,7 +29,7 @@ map.on('load', async () => {
       });
       
 });
-  map.on('load', async () => {
+map.on('load', async () => {
     map.addSource('cambridge', {
         type: 'geojson',
         data: 'https://raw.githubusercontent.com/cambridgegis/cambridgegis_data/main/Recreation/Bike_Facilities/RECREATION_BikeFacilities.geojson',
