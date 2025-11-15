@@ -27,11 +27,7 @@ map.on('load', async () => {
             'line-opacity': 0.6       // Slightly less transparent
           }
       });
-     
-  });
-map.on('load', async () => {
-
-    map.addSource('cambridge', {
+      map.addSource('cambridge', {
         type: 'geojson',
         data: 'https://raw.githubusercontent.com/cambridgegis/cambridgegis_data/main/Recreation/Bike_Facilities/RECREATION_BikeFacilities.geojson',
       });
@@ -40,9 +36,9 @@ map.on('load', async () => {
         type: 'line',
         source: 'boston_route',
         paint: {
-            'line-color': 'red',  // A bright green using hex code
+            'line-color': '#FF0000',  
             'line-width': 5,          // Thicker lines
             'line-opacity': 0.6       // Slightly less transparent
           }
       });
-});
+  });
