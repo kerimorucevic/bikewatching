@@ -30,14 +30,14 @@ map.on('load', async () => {
       
 });
 map.on('load', async () => {
-    map.addSource('cambridge', {
+    map.addSource('cambridge_route', {
         type: 'geojson',
         data: 'https://raw.githubusercontent.com/cambridgegis/cambridgegis_data/main/Recreation/Bike_Facilities/RECREATION_BikeFacilities.geojson',
       });
       map.addLayer({
         id: 'bike-lanes',
         type: 'line',
-        source: 'cambridge',
+        source: 'cambridge_route',
         paint: {
             'line-color': '#FF0000',  
             'line-width': 5,          // Thicker lines
