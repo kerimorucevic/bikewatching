@@ -34,7 +34,7 @@ map.on('load', async () => {
       map.addLayer({
         id: 'bike-lanes',
         type: 'line',
-        source: 'boston_route',
+        source: 'cambridge',
         paint: {
             'line-color': '#FF0000',  
             'line-width': 5,          // Thicker lines
