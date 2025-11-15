@@ -27,9 +27,10 @@ map.on('load', async () => {
             'line-opacity': 0.6       // Slightly less transparent
           }
       });
+    cambridge_data = await fetch('https://raw.githubusercontent.com/cambridgegis/cambridgegis_data/main/Recreation/Bike_Facilities/RECREATION_BikeFacilities.geojson').then(response => response.json());
     map.addSource('cambridge_route', {
         type: 'geojson',
-        data: 'https://raw.githubusercontent.com/cambridgegis/cambridgegis_data/main/Recreation/Bike_Facilities/RECREATION_BikeFacilities.geojson',
+        data: cambridge_data,
       });
       map.addLayer({
         id: 'bike-lanes2',
