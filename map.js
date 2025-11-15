@@ -32,7 +32,7 @@ map.on('load', async () => {
         data: 'https://raw.githubusercontent.com/cambridgegis/cambridgegis_data/main/Recreation/Bike_Facilities/RECREATION_BikeFacilities.geojson',
       });
       map.addLayer({
-        id: 'bike-lanes',
+        id: 'bike-lanes2',
         type: 'line',
         source: 'cambridge_route',
         paint: {
