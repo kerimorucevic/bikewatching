@@ -11,3 +11,35 @@ const map = new mapboxgl.Map({
   minZoom: 5, // Minimum allowed zoom
   maxZoom: 18, // Maximum allowed zoom
 });
+map.on('load', async () => {
+    //code
+    map.addSource('boston_route', {
+        type: 'geojson',
+        data: 'https://bostonopendata-boston.opendata.arcgis.com/datasets/boston::existing-bike-network-2022.geojson',
+      });
+      map.addLayer({
+        id: 'bike-lanes',
+        type: 'line',
+        source: 'boston_route',
+        paint: {
+            'line-color': '#32D400',  // A bright green using hex code
+            'line-width': 5,          // Thicker lines
+            'line-opacity': 0.6       // Slightly less transparent
+          }
+      });
+      map.addSource('cambridge', {
+        type: 'geojson',
+        data: 'https://raw.githubusercontent.com/cambridgegis/cambridgegis_data/main/Recreation/Bike_Facilities/RECREATION_BikeFacilities.geojson',
+      });
+      map.addLayer({
+        id: 'bike-lanes',
+        type: 'line',
+        source: 'boston_route',
+        paint: {
+            'line-color': '#32D400',  // A bright green using hex code
+            'line-width': 5,          // Thicker lines
+            'line-opacity': 0.6       // Slightly less transparent
+          }
+      });
+  });
+
