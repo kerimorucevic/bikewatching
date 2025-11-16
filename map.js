@@ -27,22 +27,7 @@ map.on('load', async () => {
             'line-opacity': 0.6       // Slightly less transparent
           }
       });
-    /*cambridge_data = await fetch('https://raw.githubusercontent.com/cambridgegis/cambridgegis_data/main/Recreation/Bike_Facilities/RECREATION_BikeFacilities.geojson').then(response => response.json());
-    map.addSource('cambridge_route', {
-        type: 'geojson',
-        data: cambridge_data,
-      });
-      map.addLayer({
-        id: 'bike-lanes2',
-        type: 'line',
-        source: 'cambridge_route',
-        paint: {
-            'line-color': '#FF0000',  
-            'line-width': 5,          // Thicker lines
-            'line-opacity': 0.6       // Slightly less transparent
-          }
-
-      });*/
+    
       const cambridgeUrl = 'https://raw.githubusercontent.com/cambridgegis/cambridgegis_data/main/Recreation/Bike_Facilities/RECREATION_BikeFacilities.geojson';
 
     try {
@@ -62,7 +47,7 @@ map.on('load', async () => {
         type: 'line',
         source: 'cambridge_route',
         paint: {
-            'line-color': '#FF0000',  // red
+            'line-color': '#32D400',  // red
             'line-width': 5,
             'line-opacity': 0.6,
         },
@@ -84,20 +69,21 @@ map.on('load', async () => {
         } catch (error) {
           console.error('Error loading JSON:', error); // Handle errors
         }
+        let stations = jsonData.data.stations;
+        console.log('Stations Array:', stations);
+        const svg = d3.select('#map').select('svg');
+        const circles = svg
+        .selectAll('circle')
+        .data(stations)
+        .enter()
+        .append('circle')
+        .attr('r', 5) // Radius of the circle
+        .attr('fill', 'steelblue') // Circle fill color
+        .attr('stroke', 'white') // Circle border color
+        .attr('stroke-width', 1) // Circle border thickness
+        .attr('opacity', 0.8); // Circle opacity
       });
-    let stations = jsonData.data.stations;
-    console.log('Stations Array:', stations);
-    const svg = d3.select('#map').select('svg');
-    const circles = svg
-  .selectAll('circle')
-  .data(stations)
-  .enter()
-  .append('circle')
-  .attr('r', 5) // Radius of the circle
-  .attr('fill', 'steelblue') // Circle fill color
-  .attr('stroke', 'white') // Circle border color
-  .attr('stroke-width', 1) // Circle border thickness
-  .attr('opacity', 0.8); // Circle opacity
+    
     function updatePositions() {
     circles
       .attr('cx', (d) => getCoords(d).cx) // Set the x-position using projected coordinates
