@@ -63,6 +63,8 @@ map.on('load', async () => {
     
     
         //previous code
+    const svg = d3.select('#map').select('svg');
+
     let jsonData;
     try {
           const jsonurl = INPUT_BLUEBIKES_CSV_URL;
@@ -81,27 +83,26 @@ map.on('load', async () => {
             lat: +d.Lat,
             lon: +d.Long,
           }));
-        const svg = d3.select('#map').select('svg');
-        const circles = svg
-            .selectAll('circle')
-            .data(stations)
-            .enter()
-            .append('circle')
-            .attr('r', 5) // Radius of the circle
-            .attr('fill', 'steelblue') // Circle fill color
-            .attr('stroke', 'white') // Circle border color
-            .attr('stroke-width', 1) // Circle border thickness
-            .attr('opacity', 0.8); // Circle opacity
-        function updatePositions() {
-            circles
-              .attr('cx', (d) => getCoords(d).cx) // Set the x-position using projected coordinates
-              .attr('cy', (d) => getCoords(d).cy); // Set the y-position using projected coordinates
-            }
-        updatePositions();
-        map.on('move', updatePositions); // Update during map movement
-        map.on('zoom', updatePositions); // Update during zooming
-        map.on('resize', updatePositions); // Update on window resize
-        map.on('moveend', updatePositions); // Final adjustment after movement ends
+    const circles = svg
+        .selectAll('circle')
+        .data(stations)
+        .enter()
+        .append('circle')
+        .attr('r', 5) // Radius of the circle
+        .attr('fill', 'steelblue') // Circle fill color
+        .attr('stroke', 'white') // Circle border color
+        .attr('stroke-width', 1) // Circle border thickness
+        .attr('opacity', 0.8); // Circle opacity
+    function updatePositions() {
+        circles
+          .attr('cx', (d) => getCoords(d).cx) // Set the x-position using projected coordinates
+          .attr('cy', (d) => getCoords(d).cy); // Set the y-position using projected coordinates
+        }
+    updatePositions();
+    map.on('move', updatePositions); // Update during map movement
+    map.on('zoom', updatePositions); // Update during zooming
+    map.on('resize', updatePositions); // Update on window resize
+    map.on('moveend', updatePositions); // Final adjustment after movement ends
 
 });
         
