@@ -41,6 +41,7 @@ map.on('load', async () => {
             'line-width': 5,          // Thicker lines
             'line-opacity': 0.6       // Slightly less transparent
           }
+
       });
     
     map.on('load', async () => {
@@ -59,18 +60,8 @@ map.on('load', async () => {
       });
     let stations = jsonData.data.stations;
     console.log('Stations Array:', stations);
-      
-});
-
-
-const svg = d3.select('#map').select('svg')
-function getCoords(station) {
-    const point = new mapboxgl.LngLat(+station.lon, +station.lat); // Convert lon/lat to Mapbox LngLat
-    const { x, y } = map.project(point); // Project to pixel coordinates
-    return { cx: x, cy: y }; // Return as object for use in SVG attributes
-  }
-
-  const circles = svg
+    const svg = d3.select('#map').select('svg');
+    const circles = svg
   .selectAll('circle')
   .data(stations)
   .enter()
@@ -80,7 +71,6 @@ function getCoords(station) {
   .attr('stroke', 'white') // Circle border color
   .attr('stroke-width', 1) // Circle border thickness
   .attr('opacity', 0.8); // Circle opacity
-
   function updatePositions() {
     circles
       .attr('cx', (d) => getCoords(d).cx) // Set the x-position using projected coordinates
@@ -89,9 +79,22 @@ function getCoords(station) {
   
   // Initial position update when map loads
   updatePositions();
+  map.on('move', updatePositions); // Update during map movement
+  map.on('zoom', updatePositions); // Update during zooming
+  map.on('resize', updatePositions); // Update on window resize
+  map.on('moveend', updatePositions); // Final adjustment after movement ends
+      
+});
 
 
-map.on('move', updatePositions); // Update during map movement
-map.on('zoom', updatePositions); // Update during zooming
-map.on('resize', updatePositions); // Update on window resize
-map.on('moveend', updatePositions); // Final adjustment after movement ends
+function getCoords(station) {
+    const point = new mapboxgl.LngLat(+station.lon, +station.lat); // Convert lon/lat to Mapbox LngLat
+    const { x, y } = map.project(point); // Project to pixel coordinates
+    return { cx: x, cy: y }; // Return as object for use in SVG attributes
+  }
+
+
+
+  
+
+
