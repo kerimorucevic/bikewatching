@@ -107,7 +107,7 @@ map.on('load', async () => {
     */
     let jsonData;
     try {
-      const jsonurl = 'https://dsc106.com/labs/lab07/data/bluebikes-traffic-2024-03.csv'; // or the literal JSON URL
+      const jsonurl = 'https://dsc106.com/labs/lab07/data/bluebikes-stations.json'; // or the literal JSON URL
       jsonData = await d3.json(jsonurl);
       console.log('Loaded JSON Data:', jsonData);
     } catch (error) {
@@ -122,7 +122,7 @@ map.on('load', async () => {
     // 2) Load trips CSV (Step 4.1)
     // If your starter code gives a constant like INPUT_TRAFFIC_CSV_URL or similar,
     // use that here instead of hardcoding:
-    const tripsUrl = INPUT_TRAFFIC_CSV_URL; // <-- replace with your lab's constant or URL
+    const tripsUrl = 'https://dsc106.com/labs/lab07/data/bluebikes-traffic-2024-03.csv'; // <-- replace with your lab's constant or URL
     
     let trips;
     try {
