@@ -7,10 +7,26 @@
     <title>Bikewatching</title>
     
     <script src="map.js" type="module"></script>
-    
+    <header>
+      <label id="time-filter">
+        Filter by time:
+        <input
+          id="time-slider"
+          type="range"
+          min="-1"
+          max="1440"
+          step="1"
+          value="-1"
+        />
+        <time id="selected-time"></time>
+        <em id="any-time">(any time)</em>
+      </label>
+    </header>
     <div id="map">
         <svg></svg>
     </div>
+    <script type="module" src="map.js"></script>
+
   </head>
   <body>
     <h1>🚴🏼‍♀️ Bikewatching </h1>
