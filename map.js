@@ -188,7 +188,10 @@ const map = new mapboxgl.Map({
       .attr('stroke', 'white')
       .attr('stroke-width', 1)
       .attr('opacity', 0.8)
-      .attr('r', (d) => radiusScale(d.totalTraffic));
+      .attr('r', (d) => radiusScale(d.totalTraffic))
+      .style('--departure-ratio', (d) =>
+        stationFlow(d.departures / d.totalTraffic),
+      );
     
     // 7) Keep them positioned correctly on the map
     function updatePositions() {
@@ -221,6 +224,8 @@ const map = new mapboxgl.Map({
         }
 
     stations = filteredStations;
+    let stationFlow = d3.scaleQuantize().domain([0, 1]).range([0, 0.5, 1]);
+
 
     circles = svg
       .selectAll('circle')
@@ -230,7 +235,10 @@ const map = new mapboxgl.Map({
       .attr('stroke', 'white')
       .attr('stroke-width', 1)
       .attr('opacity', 0.8)
-      .attr('r', (d) => radiusScale(d.totalTraffic));
+      .attr('r', (d) => radiusScale(d.totalTraffic))
+      .style('--departure-ratio', (d) =>
+        stationFlow(d.departures / d.totalTraffic),
+    );
 
     updatePositions();
   }
@@ -251,6 +259,9 @@ const map = new mapboxgl.Map({
 
   timeSlider.addEventListener('input', updateTimeDisplay);
   updateTimeDisplay();
+
+
+
 });
         
     
