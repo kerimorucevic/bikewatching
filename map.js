@@ -172,7 +172,8 @@ const map = new mapboxgl.Map({
   
     // ---------- INITIAL TRAFFIC + SCALE ----------
     let stations = computeStationTraffic(baseStations); // timeFilter = -1
-  
+    let stationFlow = d3.scaleQuantize().domain([0, 1]).range([0, 0.5, 1]);
+
     const radiusScale = d3
       .scaleSqrt()
       .domain([0, d3.max(stations, (d) => d.totalTraffic)])
@@ -224,7 +225,6 @@ const map = new mapboxgl.Map({
         }
 
     stations = filteredStations;
-    let stationFlow = d3.scaleQuantize().domain([0, 1]).range([0, 0.5, 1]);
 
 
     circles = svg
