@@ -72,196 +72,118 @@ function computeStationTraffic(baseStations, timeFilter = -1) {
 }
 // Initialize the map
 const map = new mapboxgl.Map({
-  container: 'map', // ID of the div where the map will render
-  style: 'mapbox://styles/mapbox/streets-v12', // Map style
-  center: [-71.09415, 42.36027], // [longitude, latitude]
-  zoom: 12, // Initial zoom level
-  minZoom: 5, // Minimum allowed zoom
-  maxZoom: 18, // Maximum allowed zoom
-});
-function getCoords(station) {
-    const point = new mapboxgl.LngLat(+station.lon, +station.lat); // Convert lon/lat to Mapbox LngLat
-    const { x, y } = map.project(point); // Project to pixel coordinates
-    return { cx: x, cy: y }; // Return as object for use in SVG attributes
-  }
-map.on('load', async () => {
-    //code
+    container: 'map',
+    style: 'mapbox://styles/mapbox/streets-v12',
+    center: [-71.09415, 42.36027],
+    zoom: 12,
+    minZoom: 5,
+    maxZoom: 18,
+  });
+  
+  map.on('load', async () => {
+    // --- bike lanes: Boston ---
     map.addSource('boston_route', {
-        type: 'geojson',
-        data: 'https://bostonopendata-boston.opendata.arcgis.com/datasets/boston::existing-bike-network-2022.geojson',
-      });
-      map.addLayer({
-        id: 'bike-lanes',
-        type: 'line',
-        source: 'boston_route',
-        paint: {
-            'line-color': '#32D400',  // A bright green using hex code
-            'line-width': 5,          // Thicker lines
-            'line-opacity': 0.6       // Slightly less transparent
-          }
-      });
-    
-      const cambridgeUrl = 'https://raw.githubusercontent.com/cambridgegis/cambridgegis_data/main/Recreation/Bike_Facilities/RECREATION_BikeFacilities.geojson';
-
+      type: 'geojson',
+      data: 'https://bostonopendata-boston.opendata.arcgis.com/datasets/boston::existing-bike-network-2022.geojson',
+    });
+  
+    map.addLayer({
+      id: 'bike-lanes-boston',
+      type: 'line',
+      source: 'boston_route',
+      paint: {
+        'line-color': '#32D400',
+        'line-width': 4,
+        'line-opacity': 0.6,
+      },
+    });
+  
+    // --- bike lanes: Cambridge ---
     try {
-        const response = await fetch(cambridgeUrl);
-        if (!response.ok) {
-         throw new Error(`HTTP ${response.status} while fetching Cambridge data`);
-        }
-        const cambridgeGeojson = await response.json();
-
-        map.addSource('cambridge_route', {
+      const cambridgeResp = await fetch(
+        'https://raw.githubusercontent.com/cambridgegis/cambridgegis_data/main/Recreation/Bike_Facilities/RECREATION_BikeFacilities.geojson',
+      );
+      if (!cambridgeResp.ok) {
+        throw new Error(`Cambridge HTTP ${cambridgeResp.status}`);
+      }
+      const cambridgeGeojson = await cambridgeResp.json();
+  
+      map.addSource('cambridge_route', {
         type: 'geojson',
         data: cambridgeGeojson,
-        });
-
-        map.addLayer({
+      });
+  
+      map.addLayer({
         id: 'bike-lanes-cambridge',
         type: 'line',
         source: 'cambridge_route',
         paint: {
-            'line-color': '#32D400',  // red
-            'line-width': 5,
-            'line-opacity': 0.6,
+          'line-color': '#ff0000',
+          'line-width': 4,
+          'line-opacity': 0.6,
         },
-        });
+      });
     } catch (err) {
-        console.error('Failed to load Cambridge bike lanes:', err);
+      console.error('Failed to load Cambridge bike lanes:', err);
     }
-    
-    
-        //previous code
+  
+    // ---------- LOAD STATIONS ----------
     const svg = d3.select('#map').select('svg');
-
-    /*let jsonData;
+  
+    let stationsJson;
     try {
-          const jsonurl = 'https://dsc106.com/labs/lab07/data/bluebikes-stations.json';
-      
-          // Await JSON fetch
-          jsonData = await d3.json(jsonurl);
-      
-          console.log('Loaded JSON Data:', jsonData); // Log to verify structure
-    } catch (error) {
-          console.error('Error loading JSON:', error); // Handle errors
+      stationsJson = await d3.json('https://dsc106.com/labs/lab07/data/bluebikes-stations.json');
+    } catch (err) {
+      console.error('Error loading stations JSON:', err);
+      return;
     }
-    let stations = jsonData.data.stations;
-    console.log('Stations Array:', stations);
-    stations = stations.map((d) => ({
-        ...d,
-        lat: +d.Lat,
-        lon: +d.Long,
-    }));
-    const circles = svg
-        .selectAll('circle')
-        .data(stations)
-        .enter()
-        .append('circle')
-        .attr('r', 5) // Radius of the circle
-        .attr('fill', 'steelblue') // Circle fill color
-        .attr('stroke', 'white') // Circle border color
-        .attr('stroke-width', 1) // Circle border thickness
-        .attr('opacity', 0.8); // Circle opacity
-    function updatePositions() {
-        circles
-          .attr('cx', (d) => getCoords(d).cx) // Set the x-position using projected coordinates
-          .attr('cy', (d) => getCoords(d).cy); // Set the y-position using projected coordinates
-        }
-    updatePositions();
-    map.on('move', updatePositions); // Update during map movement
-    map.on('zoom', updatePositions); // Update during zooming
-    map.on('resize', updatePositions); // Update on window resize
-    map.on('moveend', updatePositions); // Final adjustment after movement ends
-    */
-    let jsonData;
-    try {
-      const jsonurl = 'https://dsc106.com/labs/lab07/data/bluebikes-stations.json'; // or the literal JSON URL
-      jsonData = await d3.json(jsonurl);
-      console.log('Loaded JSON Data:', jsonData);
-    } catch (error) {
-      console.error('Error loading JSON:', error);
-      return; // bail if stations fail
-    }
-    
-    // 1) Get stations from JSON
-    let stations = jsonData.data.stations;
-    console.log('Example station before mapping:', stations[0]);
-    
-    // 2) Load trips CSV (Step 4.1)
-    // If your starter code gives a constant like INPUT_TRAFFIC_CSV_URL or similar,
-    // use that here instead of hardcoding:
-    const tripsUrl = 'https://dsc106.com/labs/lab07/data/bluebikes-traffic-2024-03.csv'; // <-- replace with your lab's constant or URL
-    
+    const baseStations = stationsJson.data.stations;
+  
+    // ---------- LOAD TRIPS + BUCKET BY MINUTE ----------
     let trips;
     try {
-      trips = await d3.csv(tripsUrl, d3.autoType); // parse numbers automatically
-      console.log('Example trip:', trips[0]);
-    } catch (error) {
-      console.error('Error loading trips CSV:', error);
-      return; // bail if trips fail
+      trips = await d3.csv('https://dsc106.com/labs/lab07/data/bluebikes-traffic-2024-03.csv', (trip) => {
+        trip.started_at = new Date(trip.started_at);
+        trip.ended_at = new Date(trip.ended_at);
+  
+        const sMin = minutesSinceMidnight(trip.started_at);
+        const eMin = minutesSinceMidnight(trip.ended_at);
+  
+        if (sMin >= 0 && sMin < 1440) {
+          departuresByMinute[sMin].push(trip);
+        }
+        if (eMin >= 0 && eMin < 1440) {
+          arrivalsByMinute[eMin].push(trip);
+        }
+  
+        return trip;
+      });
+    } catch (err) {
+      console.error('Error loading trips CSV:', err);
+      return;
     }
-    
-    // 3) Compute departures and arrivals (Step 4.2)
-    const departures = d3.rollup(
-      trips,
-      (v) => v.length,
-      (d) => d.start_station_id,
-    );
-    
-    const arrivals = d3.rollup(
-      trips,
-      (v) => v.length,
-      (d) => d.end_station_id,
-    );
-    
-    // 4) Normalize lat/lon and attach arrivals, departures, totalTraffic to each station
-    stations = stations
-      .map((station) => {
-        const lat = +((station.Lat ?? station.lat));
-        const lon = +((station.Long ?? station.lon));
-    
-        // ID used to match with trips. Lab instructions say: station.short_name
-        const id = station.short_name;
-    
-        const arr = arrivals.get(id) ?? 0;
-        const dep = departures.get(id) ?? 0;
-        const totalTraffic = arr + dep;
-    
-        return {
-          ...station,
-          lat,
-          lon,
-          arrivals: arr,
-          departures: dep,
-          totalTraffic,
-        };
-      })
-      .filter(
-        (s) =>
-          Number.isFinite(s.lat) &&
-          Number.isFinite(s.lon) &&
-          Number.isFinite(s.totalTraffic),
-      );
-    
-    console.log('Stations with traffic:', stations.slice(0, 5));
-    
-    // 5) Build square-root radius scale (Step 4.3)
+  
+    console.log('Loaded trips:', trips.length);
+  
+    // ---------- INITIAL TRAFFIC + SCALE ----------
+    let stations = computeStationTraffic(baseStations); // timeFilter = -1
+  
     const radiusScale = d3
       .scaleSqrt()
       .domain([0, d3.max(stations, (d) => d.totalTraffic)])
-      .range([0, 25]); // min/max radius in pixels
-    
-    // 6) Draw circles, sizing by totalTraffic
-    const circles = svg
+      .range([0, 25]);
+  
+    // circles, keyed by short_name
+    let circles = svg
       .selectAll('circle')
-  // all other previously defined attributes omitted for brevity
-      .each(function (d) {
-    // Add <title> for browser tooltips
-        d3.select(this)
-          .append('title')
-          .text(
-            `${d.totalTraffic} trips (${d.departures} departures, ${d.arrivals} arrivals)`,
-          );
-  });
+      .data(stations, (d) => d.short_name)
+      .enter()
+      .append('circle')
+      .attr('fill', 'steelblue')
+      .attr('stroke', 'white')
+      .attr('stroke-width', 1)
+      .attr('opacity', 0.8)
+      .attr('r', (d) => radiusScale(d.totalTraffic));
     
     // 7) Keep them positioned correctly on the map
     function updatePositions() {
