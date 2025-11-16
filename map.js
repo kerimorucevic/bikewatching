@@ -56,7 +56,7 @@ map.on('load', async () => {
         console.error('Failed to load Cambridge bike lanes:', err);
     }
     
-    map.on('load', async () => {
+    
         //previous code
         let jsonData;
         try {
@@ -94,11 +94,7 @@ map.on('load', async () => {
         map.on('moveend', updatePositions); // Final adjustment after movement ends
 
         });
-        function getCoords(station) {
-            const point = new mapboxgl.LngLat(+station.lon, +station.lat); // Convert lon/lat to Mapbox LngLat
-            const { x, y } = map.project(point); // Project to pixel coordinates
-            return { cx: x, cy: y }; // Return as object for use in SVG attributes
-          }
+        
     
         
   
@@ -107,7 +103,11 @@ map.on('load', async () => {
 
     
       
-});
+function getCoords(station) {
+    const point = new mapboxgl.LngLat(+station.lon, +station.lat); // Convert lon/lat to Mapbox LngLat
+    const { x, y } = map.project(point); // Project to pixel coordinates
+    return { cx: x, cy: y }; // Return as object for use in SVG attributes
+  }
 
 
 
