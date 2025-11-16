@@ -58,3 +58,33 @@ circle {
 
 
 }
+
+#map circle,
+.legend > div {
+  --color-departures: hsl(215, 100%, 45%); /* blue */
+  --color-arrivals: hsl(140, 70%, 40%);    /* green */
+  --color: color-mix(in lab,
+      var(--color-arrivals) calc((1 - var(--departure-ratio)) * 100%),
+      var(--color-departures) calc(var(--departure-ratio) * 100%)
+  );
+}
+
+
+.legend {
+  display: flex;
+  gap: 1px; /* slight divider between blocks */
+  margin-block: 1rem; /* space above/below legend */
+  width: 100%;
+  max-width: 450px;
+  font-size: 14px;
+  user-select: none;
+}
+
+
+.legend > div {
+  flex: 1;                       
+  padding: 0.6em 1.2em;          
+  color: white;                 
+  background: var(--color);      
+  font-weight: 500;
+}
