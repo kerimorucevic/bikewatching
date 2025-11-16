@@ -27,7 +27,7 @@ map.on('load', async () => {
             'line-opacity': 0.6       // Slightly less transparent
           }
       });
-    cambridge_data = await fetch('https://raw.githubusercontent.com/cambridgegis/cambridgegis_data/main/Recreation/Bike_Facilities/RECREATION_BikeFacilities.geojson').then(response => response.json());
+    /*cambridge_data = await fetch('https://raw.githubusercontent.com/cambridgegis/cambridgegis_data/main/Recreation/Bike_Facilities/RECREATION_BikeFacilities.geojson').then(response => response.json());
     map.addSource('cambridge_route', {
         type: 'geojson',
         data: cambridge_data,
@@ -42,7 +42,34 @@ map.on('load', async () => {
             'line-opacity': 0.6       // Slightly less transparent
           }
 
-      });
+      });*/
+      const cambridgeUrl = 'https://raw.githubusercontent.com/cambridgegis/cambridgegis_data/main/Recreation/Bike_Facilities/RECREATION_BikeFacilities.geojson';
+
+    try {
+        const response = await fetch(cambridgeUrl);
+        if (!response.ok) {
+         throw new Error(`HTTP ${response.status} while fetching Cambridge data`);
+        }
+        const cambridgeGeojson = await response.json();
+
+        map.addSource('cambridge_route', {
+        type: 'geojson',
+        data: cambridgeGeojson,
+        });
+
+        map.addLayer({
+        id: 'bike-lanes-cambridge',
+        type: 'line',
+        source: 'cambridge_route',
+        paint: {
+            'line-color': '#FF0000',  // red
+            'line-width': 5,
+            'line-opacity': 0.6,
+        },
+        });
+    } catch (err) {
+        console.error('Failed to load Cambridge bike lanes:', err);
+    }
     
     map.on('load', async () => {
         //previous code
@@ -79,7 +106,7 @@ map.on('load', async () => {
   
   // Initial position update when map loads
     updatePositions();
-    
+
     map.on('move', updatePositions); // Update during map movement
     map.on('zoom', updatePositions); // Update during zooming
     map.on('resize', updatePositions); // Update on window resize
