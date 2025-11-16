@@ -66,7 +66,7 @@ map.on('load', async () => {
         //previous code
     const svg = d3.select('#map').select('svg');
 
-    let jsonData;
+    /*let jsonData;
     try {
           const jsonurl = 'https://dsc106.com/labs/lab07/data/bluebikes-stations.json';
       
@@ -79,11 +79,11 @@ map.on('load', async () => {
     }
     let stations = jsonData.data.stations;
     console.log('Stations Array:', stations);
-    /*stations = stations.map((d) => ({
+    stations = stations.map((d) => ({
         ...d,
         lat: +d.Lat,
         lon: +d.Long,
-    }));*/
+    }));
     const circles = svg
         .selectAll('circle')
         .data(stations)
@@ -104,7 +104,110 @@ map.on('load', async () => {
     map.on('zoom', updatePositions); // Update during zooming
     map.on('resize', updatePositions); // Update on window resize
     map.on('moveend', updatePositions); // Final adjustment after movement ends
-
+    */
+    let jsonData;
+    try {
+      const jsonurl = 'https://dsc106.com/labs/lab07/data/bluebikes-traffic-2024-03.csv'; // or the literal JSON URL
+      jsonData = await d3.json(jsonurl);
+      console.log('Loaded JSON Data:', jsonData);
+    } catch (error) {
+      console.error('Error loading JSON:', error);
+      return; // bail if stations fail
+    }
+    
+    // 1) Get stations from JSON
+    let stations = jsonData.data.stations;
+    console.log('Example station before mapping:', stations[0]);
+    
+    // 2) Load trips CSV (Step 4.1)
+    // If your starter code gives a constant like INPUT_TRAFFIC_CSV_URL or similar,
+    // use that here instead of hardcoding:
+    const tripsUrl = INPUT_TRAFFIC_CSV_URL; // <-- replace with your lab's constant or URL
+    
+    let trips;
+    try {
+      trips = await d3.csv(tripsUrl, d3.autoType); // parse numbers automatically
+      console.log('Example trip:', trips[0]);
+    } catch (error) {
+      console.error('Error loading trips CSV:', error);
+      return; // bail if trips fail
+    }
+    
+    // 3) Compute departures and arrivals (Step 4.2)
+    const departures = d3.rollup(
+      trips,
+      (v) => v.length,
+      (d) => d.start_station_id,
+    );
+    
+    const arrivals = d3.rollup(
+      trips,
+      (v) => v.length,
+      (d) => d.end_station_id,
+    );
+    
+    // 4) Normalize lat/lon and attach arrivals, departures, totalTraffic to each station
+    stations = stations
+      .map((station) => {
+        const lat = +((station.Lat ?? station.lat));
+        const lon = +((station.Long ?? station.lon));
+    
+        // ID used to match with trips. Lab instructions say: station.short_name
+        const id = station.short_name;
+    
+        const arr = arrivals.get(id) ?? 0;
+        const dep = departures.get(id) ?? 0;
+        const totalTraffic = arr + dep;
+    
+        return {
+          ...station,
+          lat,
+          lon,
+          arrivals: arr,
+          departures: dep,
+          totalTraffic,
+        };
+      })
+      .filter(
+        (s) =>
+          Number.isFinite(s.lat) &&
+          Number.isFinite(s.lon) &&
+          Number.isFinite(s.totalTraffic),
+      );
+    
+    console.log('Stations with traffic:', stations.slice(0, 5));
+    
+    // 5) Build square-root radius scale (Step 4.3)
+    const radiusScale = d3
+      .scaleSqrt()
+      .domain([0, d3.max(stations, (d) => d.totalTraffic)])
+      .range([0, 25]); // min/max radius in pixels
+    
+    // 6) Draw circles, sizing by totalTraffic
+    const circles = svg
+      .selectAll('circle')
+      .data(stations)
+      .enter()
+      .append('circle')
+      .attr('r', (d) => radiusScale(d.totalTraffic))
+      .attr('fill', 'steelblue')
+      .attr('stroke', 'white')
+      .attr('stroke-width', 1)
+      .attr('opacity', 0.8);
+    
+    // 7) Keep them positioned correctly on the map
+    function updatePositions() {
+      circles
+        .attr('cx', (d) => getCoords(d).cx)
+        .attr('cy', (d) => getCoords(d).cy);
+    }
+    
+    updatePositions();
+    
+    map.on('move', updatePositions);
+    map.on('zoom', updatePositions);
+    map.on('resize', updatePositions);
+    map.on('moveend', updatePositions);
 });
         
     
