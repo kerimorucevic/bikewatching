@@ -11,6 +11,11 @@ const map = new mapboxgl.Map({
   minZoom: 5, // Minimum allowed zoom
   maxZoom: 18, // Maximum allowed zoom
 });
+function getCoords(station) {
+    const point = new mapboxgl.LngLat(+station.lon, +station.lat); // Convert lon/lat to Mapbox LngLat
+    const { x, y } = map.project(point); // Project to pixel coordinates
+    return { cx: x, cy: y }; // Return as object for use in SVG attributes
+  }
 map.on('load', async () => {
     //code
     map.addSource('boston_route', {
@@ -58,15 +63,15 @@ map.on('load', async () => {
     
     
         //previous code
-        let jsonData;
-        try {
+    let jsonData;
+    try {
           const jsonurl = INPUT_BLUEBIKES_CSV_URL;
       
           // Await JSON fetch
           const jsonData = await d3.json(jsonurl);
       
           console.log('Loaded JSON Data:', jsonData); // Log to verify structure
-        } catch (error) {
+    } catch (error) {
           console.error('Error loading JSON:', error); // Handle errors
         }
         let stations = jsonData.data.stations;
@@ -93,7 +98,7 @@ map.on('load', async () => {
         map.on('resize', updatePositions); // Update on window resize
         map.on('moveend', updatePositions); // Final adjustment after movement ends
 
-        });
+});
         
     
         
@@ -103,11 +108,7 @@ map.on('load', async () => {
 
     
       
-function getCoords(station) {
-    const point = new mapboxgl.LngLat(+station.lon, +station.lat); // Convert lon/lat to Mapbox LngLat
-    const { x, y } = map.project(point); // Project to pixel coordinates
-    return { cx: x, cy: y }; // Return as object for use in SVG attributes
-  }
+
 
 
 
