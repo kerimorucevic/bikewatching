@@ -79,11 +79,11 @@ map.on('load', async () => {
     }
     let stations = jsonData.data.stations;
     console.log('Stations Array:', stations);
-    stations = stations.map((d) => ({
+    /*stations = stations.map((d) => ({
         ...d,
         lat: +d.Lat,
         lon: +d.Long,
-    }));
+    }));*/
     const circles = svg
         .selectAll('circle')
         .data(stations)
