@@ -63,9 +63,10 @@ circle {
 .legend > div {
   --color-departures: steelblue; 
   --color-arrivals: darkorange;    
-  --color: color-mix(in lab,
-      var(--color-arrivals) calc((1 - var(--departure-ratio)) * 100%),
-      var(--color-departures) calc(var(--departure-ratio) * 100%)
+  --color: color-mix(
+    in oklch,
+    var(--color-departures) calc(100% * var(--departure-ratio)),
+    var(--color-arrivals)
   );
 }
 
